@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bass Center - لوحة التحكم</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <h1>Bass Center</h1>
+      <p>لوحة التحكم</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="btn btn-full">دخول</button>
+        <p class="login-error" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="admin-panel" style="display:none;">
+    <div class="mobile-header">
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">&#9776;</button>
+      <h2>Bass Center</h2>
+    </div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Bass Center</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-page="dashboard">لوحة التحكم</button>
+        <button class="sidebar-link" data-page="products">المنتجات</button>
+        <button class="sidebar-link" data-page="orders">الطلبات</button>
+        <button class="sidebar-link" data-page="settings">الإعدادات</button>
+        <button class="sidebar-link logout-btn" id="logoutBtn">خروج</button>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div id="pageDashboard" class="page active">
+        <h2>لوحة التحكم</h2>
+        <div class="dashboard-stats" id="dashboardStats"></div>
+      </div>
+
+      <div id="pageProducts" class="page">
+        <h2>المنتجات</h2>
+        <button class="btn" onclick="showProductForm()">إضافة منتج</button>
+        <div id="productFormContainer" style="display:none; margin: 20px 0;">
+          <form id="productForm" class="admin-form">
+            <input type="hidden" id="editProductId">
+            <div class="form-group">
+              <label>اسم المنتج</label>
+              <input type="text" id="pName" required>
+            </div>
+            <div class="form-group">
+              <label>الوصف</label>
+              <textarea id="pDesc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>السعر</label>
+              <input type="number" id="pPrice" required>
+            </div>
+            <div class="form-group">
+              <label>السعر الأصلي</label>
+              <input type="number" id="pOriginalPrice">
+            </div>
+            <div class="form-group">
+              <label>الفئة</label>
+              <select id="pCategory" required>
+                <option value="mobiles">موبايلات</option>
+                <option value="tablets">تابلت</option>
+                <option value="accessories">إكسسوارات</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>المخزون</label>
+              <input type="number" id="pStock" required>
+            </div>
+            <div class="form-group">
+              <label><input type="checkbox" id="pFeatured"> منتج مميز</label>
+            </div>
+            <div class="form-group">
+              <label>صورة</label>
+              <input type="file" id="pImage" accept="image/*">
+            </div>
+            <div class="form-buttons">
+              <button type="submit" class="btn">حفظ</button>
+              <button type="button" class="btn btn-secondary" onclick="hideProductForm()">إلغاء</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-container">
+          <table class="admin-table" id="productsTable">
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>الوصف</th>
+                <th>السعر</th>
+                <th>الفئة</th>
+                <th>المخزون</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pageOrders" class="page">
+        <h2>الطلبات</h2>
+        <div class="table-container">
+          <table class="admin-table" id="ordersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>العميل</th>
+                <th>الهاتف</th>
+                <th>المحافظة</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pageSettings" class="page">
+        <h2>إعدادات المتجر</h2>
+        
+        <form id="settingsForm" class="admin-form" style="max-width: 700px; margin-top: 20px;">
+          <h3 style="color: var(--pink); margin-bottom: 15px;">معلومات المتجر</h3>
+          <div class="form-group">
+            <label>اسم المتجر</label>
+            <input type="text" id="sStoreName" placeholder="Bass Center">
+          </div>
+          <div class="form-group">
+            <label>وصف المتجر</label>
+            <textarea id="sStoreDescription" rows="2" placeholder="وجهتكم الأولى لأفضل الموبايلات..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="sStorePhone" placeholder="+9647801234567">
+          </div>
+          <div class="form-group">
+            <label>العنوان</label>
+            <textarea id="sStoreAddress" rows="2" placeholder="شارع المتنبي، بغداد، العراق"></textarea>
+          </div>
+
+          <h3 style="color: var(--pink); margin: 20px 0 15px;">من نحن</h3>
+          <div class="form-group">
+            <label>عنوان قسم "من نحن"</label>
+            <input type="text" id="sAboutTitle" placeholder="من نحن">
+          </div>
+          <div class="form-group">
+            <label>نص "من نحن"</label>
+            <textarea id="sAboutText" rows="4" placeholder="نحن متجر متخصص في بيع الموبايلات..."></textarea>
+          </div>
+
+          <h3 style="color: var(--pink); margin: 20px 0 15px;">تليجرام</h3>
+          <div class="form-group">
+            <label>توكن بوت تليجرام</label>
+            <input type="text" id="sTelegramToken" placeholder="YOUR_BOT_TOKEN_HERE">
+          </div>
+          <div class="form-group">
+            <label>Chat ID تليجرام</label>
+            <input type="text" id="sTelegramChatId" placeholder="YOUR_CHAT_ID_HERE">
+            <small style="color: var(--light-gray); display: block; margin-top: 5px;">لإضافة أكثر من ID افصلهم بفاصلة: 123456,789012</small>
+          </div>
+
+          <h3 style="color: var(--pink); margin: 20px 0 15px;">الألوان</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>لون الهيدر</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorHeaderBg" value="#ffffff" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorHeaderBgText" style="flex:1;" placeholder="#ffffff">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون نص الهيدر</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorHeaderText" value="#333333" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorHeaderTextText" style="flex:1;" placeholder="#333333">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون خلفية البانر</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorHeroBg" value="#1a1a1a" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorHeroBgText" style="flex:1;" placeholder="#1a1a1a">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون خلفية الصفحة</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorBodyBg" value="#f5f5f5" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorBodyBgText" style="flex:1;" placeholder="#f5f5f5">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون بطاقة المنتج</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorProductCardBg" value="#ffffff" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorProductCardBgText" style="flex:1;" placeholder="#ffffff">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون النص الأساسي</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorTextPrimary" value="#222222" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorTextPrimaryText" style="flex:1;" placeholder="#222222">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>لون النص الثانوي</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorTextSecondary" value="#888888" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorTextSecondaryText" style="flex:1;" placeholder="#888888">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>اللون الرئيسي (الوردي)</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="sColorAccent" value="#E88DB5" style="width:50px;height:35px;border:none;cursor:pointer;">
+                <input type="text" id="sColorAccentText" style="flex:1;" placeholder="#E88DB5">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-buttons" style="margin-top: 20px;">
+            <button type="submit" class="btn">حفظ الإعدادات</button>
+            <button type="button" class="btn btn-secondary" onclick="resetColors()">إعادة تعيين الألوان</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

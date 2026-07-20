@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bass Center - متجر الموبايلات</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo">Bass Center</a>
+      <nav class="nav" id="mainNav">
+        <a href="#products" onclick="closeMobileNav()">المنتجات</a>
+        <a href="#about" onclick="closeMobileNav()">من نحن</a>
+        <a href="#contact" onclick="closeMobileNav()">تواصل معنا</a>
+      </nav>
+      <button class="menu-toggle" onclick="document.querySelector('.nav').classList.toggle('open')">☰</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>مرحباً بكم في Bass Center</h1>
+      <p>وجهتكم الأولى لأفضل الموبايلات والتابلت والإكسسوارات</p>
+      <a href="#products" class="btn">تسوق الآن</a>
+    </div>
+  </section>
+
+  <section id="products" class="section">
+    <div class="container">
+      <h2 class="section-title">المنتجات</h2>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="ابحث عن منتج...">
+      </div>
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-category="all">الكل</button>
+        <button class="filter-btn" data-category="mobiles">موبايلات</button>
+        <button class="filter-btn" data-category="tablets">تابلت</button>
+        <button class="filter-btn" data-category="accessories">إكسسوارات</button>
+        <button class="filter-btn" data-category="other">أخرى</button>
+      </div>
+      <div class="products-grid" id="productsGrid"></div>
+    </div>
+  </section>
+
+  <section id="about" class="section about">
+    <div class="container">
+      <h2 class="section-title" id="aboutTitle">من نحن</h2>
+      <p id="aboutText" style="text-align:center;max-width:700px;margin:0 auto 40px;color:#666;line-height:1.8;"></p>
+      <div class="stats">
+        <div class="stat-card">
+          <h3>500+</h3>
+          <p>عميل سعيد</p>
+        </div>
+        <div class="stat-card">
+          <h3>100+</h3>
+          <p>منتج متوفر</p>
+        </div>
+        <div class="stat-card">
+          <h3>سريع</h3>
+          <p>توصيل في نفس اليوم</p>
+        </div>
+        <div class="stat-card">
+          <h3>ممتاز</h3>
+          <p>ضمان على المنتجات</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="section contact">
+    <div class="container">
+      <h2 class="section-title">تواصل معنا</h2>
+      <div class="contact-info" id="contactInfo">
+        <div class="contact-item">
+          <h3>الهاتف</h3>
+          <p id="contactPhone">جاري التحميل...</p>
+        </div>
+        <div class="contact-item">
+          <h3>العنوان</h3>
+          <p id="contactAddress">جاري التحميل...</p>
+        </div>
+      </div>
+      <div class="social-links">
+        <a href="https://www.facebook.com/share/1CdzwTNZoC/?mibextid=wwXIfr" target="_blank" class="social-link">
+          <span class="social-icon social-icon-facebook">&#xf09a;</span>
+          <span>فيسبوك</span>
+        </a>
+        <a href="https://www.instagram.com/qbes1?igsh=MWZqcHBybGRlZnBucQ%3D%3D&utm_source=qr" target="_blank" class="social-link">
+          <span class="social-icon social-icon-instagram">&#xf16d;</span>
+          <span>انستكرام</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Bass Center - جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal">
+      <button class="modal-close" id="closeModal">&times;</button>
+      <h2>طلب منتج</h2>
+      <p class="modal-product-name" id="modalProductName"></p>
+      <form id="orderForm">
+        <input type="hidden" id="orderProductId">
+        <div class="form-group">
+          <label>الكمية</label>
+          <div class="quantity-selector">
+            <button type="button" class="qty-btn" id="qtyMinus">-</button>
+            <span id="qtyValue">1</span>
+            <button type="button" class="qty-btn" id="qtyPlus">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="orderName" required>
+        </div>
+        <div class="form-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="orderPhone" required>
+        </div>
+        <div class="form-group">
+          <label>المحافظة</label>
+          <select id="orderGovernorate" required>
+            <option value="">اختر المحافظة</option>
+            <option value="بغداد">بغداد</option>
+            <option value="البصرة">البصرة</option>
+            <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+            <option value="ال Erbil (اربيل)">أربيل</option>
+            <option value="السليمانية">السليمانية</option>
+            <option value="دهوك">دهوك</option>
+            <option value="كركوك">كركوك</option>
+            <option value="النجف">النجف</option>
+            <option value="كربلاء">كربلاء</option>
+            <option value="بابل (الحلة)">بابل (الحلة)</option>
+            <option value="ديالى (بعقوبة)">ديالى (بعقوبة)</option>
+            <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+            <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+            <option value="ديوانية (الديوانية)">ديوانية (الديوانية)</option>
+            <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+            <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+            <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+            <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+            <option value="واسط (الكوت)">واسط (الكوت)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>تفاصيل العنوان</label>
+          <textarea id="orderAddress" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>ملاحظات</label>
+          <textarea id="orderNotes" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-full">إرسال الطلب</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
