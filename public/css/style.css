@@ -345,6 +345,10 @@ body {
   background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
 }
 
+.social-icon-whatsapp {
+  background: #25D366;
+}
+
 .footer {
   background: #fff;
   border-top: 2px solid var(--pink);
