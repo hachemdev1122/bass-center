@@ -78,7 +78,6 @@ function authMiddleware(req, res, next) {
 
 let cachedTgSettings = null;
 let tgCacheTime = 0;
-const fetch = require('node-fetch');
 
 async function sendTelegramNotification(message) {
   try {
