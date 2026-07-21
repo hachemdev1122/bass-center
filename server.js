@@ -16,8 +16,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 let db = null;
 
 async function getDb() {
-
-async function getDb() {
   if (db) return db;
   db = createClient({
     url: process.env.TURSO_DATABASE_URL || config.turso_database_url || 'file:local.db',
