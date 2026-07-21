@@ -59,9 +59,9 @@ async function getDb() {
       sort_order INTEGER DEFAULT 0
     );
   `);
-  const catCount = await d.execute('SELECT COUNT(*) as count FROM categories');
+  const catCount = await db.execute('SELECT COUNT(*) as count FROM categories');
   if (catCount.rows[0].count === 0) {
-    await d.executeMultiple(`
+    await db.executeMultiple(`
       INSERT INTO categories (name, slug, sort_order) VALUES ('موبايلات', 'mobiles', 1);
       INSERT INTO categories (name, slug, sort_order) VALUES ('تابلت', 'tablets', 2);
       INSERT INTO categories (name, slug, sort_order) VALUES ('إكسسوارات', 'accessories', 3);
