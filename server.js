@@ -14,6 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 let db = null;
+let cachedFetch = null;
+
+async function getFetch() {
+  if (!cachedFetch) cachedFetch = (await import('node-fetch')).default;
+  return cachedFetch;
+}
 
 async function getDb() {
   if (db) return db;
@@ -74,20 +80,30 @@ function authMiddleware(req, res, next) {
   res.status(401).json({ error: 'Unauthorized' });
 }
 
+let cachedTgSettings = null;
+let tgCacheTime = 0;
+
 async function sendTelegramNotification(message) {
-  const token = await getSetting('telegram_bot_token', process.env.TELEGRAM_BOT_TOKEN || config.telegram_bot_token);
-  const chatIdStr = await getSetting('telegram_chat_id', process.env.TELEGRAM_CHAT_ID || config.telegram_chat_id);
-  if (!token || token === 'YOUR_BOT_TOKEN_HERE' || !chatIdStr) return;
-  const chatIds = chatIdStr.split(',').map(id => id.trim()).filter(id => id);
   try {
-    const fetch = (await import('node-fetch')).default;
-    for (const chatId of chatIds) {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const now = Date.now();
+    if (!cachedTgSettings || now - tgCacheTime > 60000) {
+      const token = await getSetting('telegram_bot_token', process.env.TELEGRAM_BOT_TOKEN || config.telegram_bot_token);
+      const chatIdStr = await getSetting('telegram_chat_id', process.env.TELEGRAM_CHAT_ID || config.telegram_chat_id);
+      cachedTgSettings = { token, chatIdStr };
+      tgCacheTime = now;
+    }
+    const { token, chatIdStr } = cachedTgSettings;
+    if (!token || token === 'YOUR_BOT_TOKEN_HERE' || !chatIdStr) return;
+    const chatIds = chatIdStr.split(',').map(id => id.trim()).filter(id => id);
+    const fetch = await getFetch();
+    await Promise.all(chatIds.map(chatId =>
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
-      });
-    }
+        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' }),
+        signal: AbortSignal.timeout(5000)
+      }).catch(() => {})
+    ));
   } catch (err) { console.error('Telegram error:', err.message); }
 }
 
