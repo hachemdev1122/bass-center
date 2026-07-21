@@ -361,6 +361,24 @@ async function deleteOrder(id) {
   }
 }
 
+async function deleteAllOrders() {
+  if (!confirm('هل أنت متأكد من حذف جميع الطلبات؟ هذا الإجراء لا يمكن التراجع عنه!')) return;
+  try {
+    const res = await fetch('/api/admin/orders', {
+      method: 'DELETE',
+      headers: { 'X-Admin-Token': adminToken }
+    });
+    if (res.ok) {
+      showToast('تم حذف جميع الطلبات');
+      loadOrders();
+    } else {
+      showToast('حدث خطأ أثناء الحذف');
+    }
+  } catch {
+    showToast('تعذر الاتصال بالخادم');
+  }
+}
+
 let allCategories = [];
 
 async function loadCategories() {

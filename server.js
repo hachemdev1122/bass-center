@@ -267,6 +267,14 @@ app.delete('/api/admin/orders/:id', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.delete('/api/admin/orders', authMiddleware, async (req, res) => {
+  try {
+    const d = await getDb();
+    await d.execute('DELETE FROM orders');
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/api/categories', async (req, res) => {
   try {
     const d = await getDb();
