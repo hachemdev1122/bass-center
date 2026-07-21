@@ -138,6 +138,7 @@ async function loadOrders() {
             <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>تم التوصيل</option>
             <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>ملغي</option>
           </select>
+          <button class="btn-delete" onclick="deleteOrder(${o.id})" style="margin-top:8px;width:100%;">حذف الطلب</button>
         </td>
       </tr>
     `).join('');
