@@ -14,13 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 let db = null;
-let cachedFetch = null;
 
-async function getFetch() {
-  if (!cachedFetch) cachedFetch = (await import('node-fetch')).default;
-  return cachedFetch;
-}
-getFetch().catch(() => {});
+async function getDb() {
 
 async function getDb() {
   if (db) return db;
@@ -83,6 +78,7 @@ function authMiddleware(req, res, next) {
 
 let cachedTgSettings = null;
 let tgCacheTime = 0;
+const fetch = require('node-fetch');
 
 async function sendTelegramNotification(message) {
   try {
@@ -96,7 +92,6 @@ async function sendTelegramNotification(message) {
     const { token, chatIdStr } = cachedTgSettings;
     if (!token || token === 'YOUR_BOT_TOKEN_HERE' || !chatIdStr) return;
     const chatIds = chatIdStr.split(',').map(id => id.trim()).filter(id => id);
-    const fetch = await getFetch();
     await Promise.all(chatIds.map(chatId =>
       fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -153,8 +148,8 @@ app.post('/api/orders', async (req, res) => {
     await d.execute({ sql: 'UPDATE products SET stock = MAX(0, stock - ?) WHERE id = ?', args: [qty, parseInt(product_id)] });
     const storeName = await getSetting('store_name', process.env.STORE_NAME || 'Bass Center');
     const telegramMsg = [`🛒 <b>طلب جديد - ${storeName}</b>`, `━━━━━━━━━━━━━━━━━━━━`, ``, `👤 <b>العميل:</b> ${customer_name}`, `📱 <b>الهاتف:</b> ${phone}`, `📍 <b>المحافظة:</b> ${governorate}`, `🏠 <b>العنوان:</b> ${address_detail || 'غير محدد'}`, ``, `━━━━━━━━━━━━━━━━━━━━`, `📦 <b>المنتج:</b> ${product.name}`, `🔢 <b>الكمية:</b> ${qty}`, `💰 <b>السعر:</b> ${total.toLocaleString('ar-IQ')} د.ع`, ``, `📝 <b>ملاحظات:</b> ${notes || 'لا يوجد'}`, ``, `⏰ ${new Date().toLocaleString('ar-IQ')}`].join('\n');
+    await sendTelegramNotification(telegramMsg);
     res.json({ success: true });
-    sendTelegramNotification(telegramMsg).catch(() => {});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
