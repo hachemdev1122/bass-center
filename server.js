@@ -52,7 +52,22 @@ async function getDb() {
       key TEXT PRIMARY KEY,
       value TEXT
     );
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      sort_order INTEGER DEFAULT 0
+    );
   `);
+  const catCount = await d.execute('SELECT COUNT(*) as count FROM categories');
+  if (catCount.rows[0].count === 0) {
+    await d.executeMultiple(`
+      INSERT INTO categories (name, slug, sort_order) VALUES ('موبايلات', 'mobiles', 1);
+      INSERT INTO categories (name, slug, sort_order) VALUES ('تابلت', 'tablets', 2);
+      INSERT INTO categories (name, slug, sort_order) VALUES ('إكسسوارات', 'accessories', 3);
+      INSERT INTO categories (name, slug, sort_order) VALUES ('أخرى', 'other', 4);
+    `);
+  }
   return db;
 }
 
@@ -240,6 +255,53 @@ app.put('/api/admin/orders/:id', authMiddleware, async (req, res) => {
     await d.execute({ sql: 'UPDATE orders SET status = ? WHERE id = ?', args: [status, parseInt(req.params.id)] });
     const statusLabels = { pending: 'قيد الانتظار', confirmed: 'تم التأكيد', shipped: 'تم الشحن', delivered: 'تم التوصيل', cancelled: 'ملغي' };
     sendTelegramNotification(`📊 تحديث الطلب #${order.id}\nالعميل: ${order.customer_name}\nالحالة: ${statusLabels[status]}`);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/admin/orders/:id', authMiddleware, async (req, res) => {
+  try {
+    const d = await getDb();
+    await d.execute({ sql: 'DELETE FROM orders WHERE id = ?', args: [parseInt(req.params.id)] });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/categories', async (req, res) => {
+  try {
+    const d = await getDb();
+    const rows = await d.execute('SELECT * FROM categories ORDER BY sort_order ASC');
+    res.json(rows.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/admin/categories', authMiddleware, async (req, res) => {
+  try {
+    const { name, slug } = req.body;
+    if (!name || !slug) return res.status(400).json({ error: 'Name and slug required' });
+    const d = await getDb();
+    const maxSort = await d.execute('SELECT COALESCE(MAX(sort_order), 0) as m FROM categories');
+    await d.execute({
+      sql: 'INSERT INTO categories (name, slug, sort_order) VALUES (?, ?, ?)',
+      args: [name, slug, maxSort.rows[0].m + 1]
+    });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/admin/categories/:id', authMiddleware, async (req, res) => {
+  try {
+    const { name, slug } = req.body;
+    const d = await getDb();
+    await d.execute({ sql: 'UPDATE categories SET name=?, slug=? WHERE id=?', args: [name, slug, parseInt(req.params.id)] });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/admin/categories/:id', authMiddleware, async (req, res) => {
+  try {
+    const d = await getDb();
+    await d.execute({ sql: 'DELETE FROM categories WHERE id = ?', args: [parseInt(req.params.id)] });
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

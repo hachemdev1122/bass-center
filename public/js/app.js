@@ -6,8 +6,8 @@ let siteSettings = {};
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
+  loadCategories();
   loadProducts();
-  initFilters();
   initSearch();
   initModal();
 });
@@ -72,6 +72,17 @@ function isLightColor(hex) {
   const g = parseInt(c.substr(2, 2), 16);
   const b = parseInt(c.substr(4, 2), 16);
   return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+}
+
+async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    const cats = await res.json();
+    document.getElementById('categoryFilters').innerHTML = cats.map(c =>
+      `<button class="filter-btn" data-category="${c.slug}">${c.name}</button>`
+    ).join('');
+    initFilters();
+  } catch {}
 }
 
 async function loadProducts() {

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btn.dataset.page === 'dashboard') loadDashboard();
       if (btn.dataset.page === 'products') loadAdminProducts();
       if (btn.dataset.page === 'orders') loadOrders();
+      if (btn.dataset.page === 'categories') loadCategories();
       if (btn.dataset.page === 'settings') loadSettings();
 
       document.getElementById('sidebar').classList.remove('open');
@@ -91,14 +92,19 @@ async function loadDashboard() {
 
 async function loadAdminProducts() {
   try {
-    const res = await fetch('/api/admin/products', { headers: { 'X-Admin-Token': adminToken } });
-    const products = await res.json();
+    const [prodRes, catRes] = await Promise.all([
+      fetch('/api/admin/products', { headers: { 'X-Admin-Token': adminToken } }),
+      fetch('/api/categories')
+    ]);
+    const products = await prodRes.json();
+    allCategories = await catRes.json();
+    updateCategorySelect();
     document.getElementById('productsTableBody').innerHTML = products.map(p => `
       <tr>
         <td>${p.name}</td>
         <td>${p.description || '-'}</td>
         <td>${Number(p.price).toLocaleString('ar-IQ')} د.ع</td>
-        <td>${p.category}</td>
+        <td>${allCategories.find(c => c.slug === p.category)?.name || p.category}</td>
         <td>${p.stock}</td>
         <td>
           <div class="table-actions">
@@ -229,6 +235,12 @@ async function saveSettings(e) {
   }
 }
 
+function updateCategorySelect() {
+  const sel = document.getElementById('pCategory');
+  if (!sel) return;
+  sel.innerHTML = allCategories.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+}
+
 function showProductForm(product = null) {
   document.getElementById('productFormContainer').style.display = 'block';
   document.getElementById('editProductId').value = product ? product.id : '';
@@ -328,6 +340,95 @@ async function updateOrderStatus(id, status) {
   } catch {
     showToast('تعذر الاتصال بالخادم');
   }
+}
+
+async function deleteOrder(id) {
+  if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
+  try {
+    const res = await fetch(`/api/admin/orders/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Admin-Token': adminToken }
+    });
+    if (res.ok) {
+      showToast('تم حذف الطلب');
+      loadOrders();
+    } else {
+      showToast('حدث خطأ أثناء الحذف');
+    }
+  } catch {
+    showToast('تعذر الاتصال بالخادم');
+  }
+}
+
+let allCategories = [];
+
+async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    allCategories = await res.json();
+    document.getElementById('categoriesTableBody').innerHTML = allCategories.map(c => `
+      <tr>
+        <td><input type="text" value="${c.name}" id="catName_${c.id}" style="border:1px solid #ddd;padding:4px 8px;border-radius:4px;width:100%;"></td>
+        <td><input type="text" value="${c.slug}" id="catSlug_${c.id}" style="border:1px solid #ddd;padding:4px 8px;border-radius:4px;width:100%;"></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn-edit" onclick="updateCategory(${c.id})">حفظ</button>
+            <button class="btn-delete" onclick="deleteCategory(${c.id})">حذف</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch {
+    document.getElementById('categoriesTableBody').innerHTML = '<tr><td colspan="3">تعذر تحميل الفئات</td></tr>';
+  }
+}
+
+async function addCategory() {
+  const name = document.getElementById('catName').value.trim();
+  const slug = document.getElementById('catSlug').value.trim();
+  if (!name || !slug) { showToast('أدخل اسم الفئة والرمز'); return; }
+  try {
+    const res = await fetch('/api/admin/categories', {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify({ name, slug })
+    });
+    if (res.ok) {
+      showToast('تم إضافة الفئة');
+      document.getElementById('catName').value = '';
+      document.getElementById('catSlug').value = '';
+      loadCategories();
+    } else {
+      showToast('حدث خطأ');
+    }
+  } catch { showToast('تعذر الاتصال بالخادم'); }
+}
+
+async function updateCategory(id) {
+  const name = document.getElementById(`catName_${id}`).value.trim();
+  const slug = document.getElementById(`catSlug_${id}`).value.trim();
+  if (!name || !slug) { showToast('أدخل اسم الفئة والرمز'); return; }
+  try {
+    const res = await fetch(`/api/admin/categories/${id}`, {
+      method: 'PUT',
+      headers: adminHeaders(),
+      body: JSON.stringify({ name, slug })
+    });
+    if (res.ok) { showToast('تم تحديث الفئة'); loadCategories(); }
+    else { showToast('حدث خطأ'); }
+  } catch { showToast('تعذر الاتصال بالخادم'); }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) return;
+  try {
+    const res = await fetch(`/api/admin/categories/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Admin-Token': adminToken }
+    });
+    if (res.ok) { showToast('تم حذف الفئة'); loadCategories(); }
+    else { showToast('حدث خطأ'); }
+  } catch { showToast('تعذر الاتصال بالخادم'); }
 }
 
 function showToast(msg) {
