@@ -20,6 +20,7 @@ async function getFetch() {
   if (!cachedFetch) cachedFetch = (await import('node-fetch')).default;
   return cachedFetch;
 }
+getFetch().catch(() => {});
 
 async function getDb() {
   if (db) return db;
@@ -152,8 +153,8 @@ app.post('/api/orders', async (req, res) => {
     await d.execute({ sql: 'UPDATE products SET stock = MAX(0, stock - ?) WHERE id = ?', args: [qty, parseInt(product_id)] });
     const storeName = await getSetting('store_name', process.env.STORE_NAME || 'Bass Center');
     const telegramMsg = [`🛒 <b>طلب جديد - ${storeName}</b>`, `━━━━━━━━━━━━━━━━━━━━`, ``, `👤 <b>العميل:</b> ${customer_name}`, `📱 <b>الهاتف:</b> ${phone}`, `📍 <b>المحافظة:</b> ${governorate}`, `🏠 <b>العنوان:</b> ${address_detail || 'غير محدد'}`, ``, `━━━━━━━━━━━━━━━━━━━━`, `📦 <b>المنتج:</b> ${product.name}`, `🔢 <b>الكمية:</b> ${qty}`, `💰 <b>السعر:</b> ${total.toLocaleString('ar-IQ')} د.ع`, ``, `📝 <b>ملاحظات:</b> ${notes || 'لا يوجد'}`, ``, `⏰ ${new Date().toLocaleString('ar-IQ')}`].join('\n');
-    sendTelegramNotification(telegramMsg);
     res.json({ success: true });
+    sendTelegramNotification(telegramMsg).catch(() => {});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

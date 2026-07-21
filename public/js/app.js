@@ -169,8 +169,17 @@ function openOrderModal(id, name) {
   document.getElementById('orderModal').classList.add('active');
 }
 
+let isSubmitting = false;
+
 async function submitOrder(e) {
   e.preventDefault();
+  if (isSubmitting) return;
+  isSubmitting = true;
+  const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'جاري الإرسال...';
+  submitBtn.disabled = true;
+
   const data = {
     product_id: Number(document.getElementById('orderProductId').value),
     quantity: currentQuantity,
@@ -198,6 +207,10 @@ async function submitOrder(e) {
     }
   } catch {
     showToast('تعذر الاتصال بالخادم');
+  } finally {
+    isSubmitting = false;
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
   }
 }
 
