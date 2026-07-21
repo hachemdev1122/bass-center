@@ -7,5 +7,7 @@
   "store_address": "شارع المتنبي، بغداد، العراق",
   "currency": "IQD",
   "currency_symbol": "د.ع",
-  "port": 3000
+  "port": 3000,
+  "turso_database_url": "libsql://bass-center-hachemdev1122.aws-eu-west-1.turso.io",
+  "turso_auth_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODQ1OTE5NDIsImlkIjoiMDE5ZjgxZjYtMGIwMS03NGViLWE3NGEtZWZjMjFjZTQ2ZjEzIiwia2lkIjoieVRHYm9VaWZoMFljbTNJek1EczV0Nm8tak5GS0ZabW9HdTJvcmFXVHNoTSIsInJpZCI6ImZkMDQyZmVhLTBmMzYtNDc4MC05YWU1LWM4MDcwMmU4MzQzMSJ9.1deRtb4al5SED987K3oi9aPshjsGlce-2qpKcSDPc6Y5Arpzeg9g6OpVNFRys3KD60AgSiJP_a3QAIcR14YCDA"
 }
